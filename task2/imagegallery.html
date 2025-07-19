@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Glass Gallery Albums - Night View</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(to bottom right, #0f2027, #203a43, #2c5364);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 30px;
+      box-sizing: border-box;
+    }
+
+    .gallery {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 25px;
+      width: 100%;
+      max-width: 1200px;
+    }
+
+    .card {
+      backdrop-filter: blur(12px);
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 20px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+      overflow: hidden;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      cursor: pointer;
+    }
+
+    .card:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.6);
+    }
+
+    .card img {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+
+    .caption {
+      padding: 15px;
+      color: #aefeff;
+      font-size: 1rem;
+      text-align: center;
+      background: rgba(255, 255, 255, 0.05);
+    }
+
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 1000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      backdrop-filter: blur(8px);
+      background: rgba(0, 0, 0, 0.7);
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+    }
+
+    .modal-content {
+      max-width: 90%;
+      max-height: 80%;
+      border-radius: 20px;
+      overflow: hidden;
+      box-shadow: 0 0 25px rgba(174, 255, 255, 0.3);
+      animation: fadeIn 0.3s ease;
+      position: relative;
+    }
+
+    .modal-content img {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+
+    .controls {
+      margin-top: 15px;
+      display: flex;
+      gap: 20px;
+      justify-content: center;
+    }
+
+    .btn {
+      background: rgba(174, 255, 255, 0.2);
+      color: #aefeff;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 10px;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: 0.3s ease;
+    }
+
+    .btn:hover {
+      background: rgba(174, 255, 255, 0.4);
+    }
+
+    .close {
+      position: absolute;
+      top: 20px;
+      right: 30px;
+      font-size: 2rem;
+      color: #aefeff;
+      cursor: pointer;
+      z-index: 2000;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: scale(0.9); }
+      to { opacity: 1; transform: scale(1); }
+    }
+  </style>
+</head>
+<body>
+  <div class="gallery">
+    <div class="card" onclick="openAlbum('stars')">
+      <img src="https://picsum.photos/id/1036/400/300" alt="Stars" />
+      <div class="caption">Starry Sky</div>
+    </div>
+    <div class="card" onclick="openAlbum('city')">
+      <img src="https://picsum.photos/id/1012/400/300" alt="City" />
+      <div class="caption">Night City</div>
+    </div>
+    <div class="card" onclick="openAlbum('nature')">
+      <img src="https://picsum.photos/id/1006/400/300" alt="Nature" />
+      <div class="caption">Night Forest</div>
+    </div>
+    <div class="card" onclick="openAlbum('space')">
+      <img src="https://picsum.photos/id/1021/400/300" alt="Space" />
+      <div class="caption">Cosmic Light</div>
+    </div>
+  </div>
+
+  <div class="modal" id="imageModal">
+    <div class="close" onclick="closeModal()">×</div>
+    <div class="modal-content">
+      <img id="modalImage" src="" alt="Large View" />
+    </div>
+    <div class="controls">
+      <button class="btn" onclick="prevImage()">⟨ Prev</button>
+      <button class="btn" onclick="nextImage()">Next ⟩</button>
+    </div>
+  </div>
+
+  <script>
+    const albums = {
+      stars: [
+        'https://picsum.photos/id/1036/800/600',
+        'https://picsum.photos/id/1037/800/600',
+        'https://picsum.photos/id/1038/800/600'
+      ],
+      city: [
+        'https://picsum.photos/id/1012/800/600',
+        'https://picsum.photos/id/1013/800/600',
+        'https://picsum.photos/id/1014/800/600'
+      ],
+      nature: [
+        'https://picsum.photos/id/1006/800/600',
+        'https://picsum.photos/id/1005/800/600',
+        'https://picsum.photos/id/1004/800/600'
+      ],
+      space: [
+        'https://picsum.photos/id/1021/800/600',
+        'https://picsum.photos/id/1020/800/600',
+        'https://picsum.photos/id/1019/800/600'
+      ]
+    };
+
+    let currentAlbum = [];
+    let currentIndex = 0;
+
+    function openAlbum(name) {
+      currentAlbum = albums[name];
+      currentIndex = 0;
+      document.getElementById('modalImage').src = currentAlbum[currentIndex];
+      document.getElementById('imageModal').style.display = 'flex';
+    }
+
+    function closeModal() {
+      document.getElementById('imageModal').style.display = 'none';
+    }
+
+    function nextImage() {
+      currentIndex = (currentIndex + 1) % currentAlbum.length;
+      document.getElementById('modalImage').src = currentAlbum[currentIndex];
+    }
+
+    function prevImage() {
+      currentIndex = (currentIndex - 1 + currentAlbum.length) % currentAlbum.length;
+      document.getElementById('modalImage').src = currentAlbum[currentIndex];
+    }
+
+    document.getElementById('imageModal').addEventListener('click', (e) => {
+      if (e.target === e.currentTarget) {
+        closeModal();
+      }
+    });
+  </script>
+</body>
+</html>
